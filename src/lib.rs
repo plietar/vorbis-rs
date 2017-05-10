@@ -1,7 +1,6 @@
 extern crate ogg_sys;
 extern crate vorbis_sys;
 extern crate vorbisfile_sys;
-extern crate vorbis_encoder;
 extern crate libc;
 extern crate rand;
 
@@ -292,62 +291,4 @@ pub enum VorbisQuality {
     Performance,
     HighPerforamnce,
     VeryHighPerformance,
-}
-
-pub struct Encoder {
-    e: vorbis_encoder::Encoder,
-}
-
-impl Encoder {
-    pub fn new(channels: u8, rate: u64, quality: VorbisQuality) -> Result<Self, VorbisError> {
-        let quality = match quality {
-            VorbisQuality::VeryHighQuality => {1.0f32},
-            VorbisQuality::HighQuality => {0.8f32},
-            VorbisQuality::Quality => {0.6f32},
-            VorbisQuality::Midium => {0.4f32},
-            VorbisQuality::Performance => {0.3f32},
-            VorbisQuality::HighPerforamnce => {0.1f32},
-            VorbisQuality::VeryHighPerformance => {-0.1f32},
-        };
-        Ok(Encoder {
-            e: match vorbis_encoder::Encoder::new(channels as u32, rate, quality) {
-                Ok(e) => {e},
-                Err(i) => {
-                    match check_errors(i) {
-                        Ok(()) => panic!("Unexpected behavior, call hossein.noroozpour@gmail.com"),
-                        Err(err) => return Err(err),
-                    }
-                }
-            }
-        })
-    }
-
-    // data is an interleaved array of samples
-    pub fn encode(&mut self, data: &Vec<i16>) -> Result<Vec<u8>, VorbisError> {
-        Ok(
-            match self.e.encode(&data) {
-                Ok(d) => {d},
-                Err(i) => {
-                    match check_errors(i) {
-                        Ok(()) => panic!("Unexpected behavior, call hossein.noroozpour@gmail.com"),
-                        Err(err) => return Err(err),
-                    }
-                }
-            }
-        )
-    }
-
-    pub fn flush(&mut self) -> Result<Vec<u8>, VorbisError> {
-        Ok(
-            match self.e.flush() {
-                Ok(d) => {d},
-                Err(i) => {
-                    match check_errors(i) {
-                        Ok(()) => panic!("Unexpected behavior, call hossein.noroozpour@gmail.com"),
-                        Err(err) => return Err(err),
-                    }
-                }
-            }
-        )
-    }
 }
